@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "queue": "cpp",
+        "xstring": "cpp",
+        "regex": "cpp",
+        "map": "cpp",
+        "utility": "cpp",
+        "string": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "vector": "cpp",
+        "xtree": "cpp",
+        "iosfwd": "cpp",
+        "ostream": "cpp",
+        "stack": "cpp",
+        "array": "cpp",
+        "string_view": "cpp"
+    }
+}
