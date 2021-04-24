@@ -3,7 +3,9 @@
 #include <map>
 class funct : public estructura{
     public:
-        funct(){}
+        funct(){
+            declared = false;
+        }
         static funct process(queue<palabra> q){
             funct foo;
             int cont = 0;
@@ -11,7 +13,12 @@ class funct : public estructura{
             while(!q.empty()){
                 palabra aux = q.front();
                 switch(aux){
-                    case 8-13:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
                         if(cont == 0){
                             foo.setType(aux);
                         }else{
@@ -22,11 +29,13 @@ class funct : public estructura{
                         foo.setBloque(aux.getBloque());
                         foo.setDelared();
                         break;
-                    case 38-39://En cuanto se encuentre un parentesis, debe ignorar las palabras
+                    case 38:
+                    case 39://En cuanto se encuentre un parentesis, debe ignorar las palabras
                         break;
                     case 31:
                         if(cont == 0){
                             foo.setNombre(aux);
+                            foo.setPalabraClave(aux);
                             cont++;
                         }else{
                             if(!foo.isInArgumentes(aux))
@@ -38,6 +47,8 @@ class funct : public estructura{
                         break;
                     case 46:
                         return foo;
+                        break;
+                    default:
                         break;
                 }
                 q.pop();
@@ -59,7 +70,7 @@ class funct : public estructura{
             this->bloque = bloque;
         }
         void setDelared(){
-            this->delcared = true;
+            this->declared = true;
         }
         bool isInArgumentes(palabra p){
             if(arguments.find(p) != arguments.end()){
@@ -67,11 +78,16 @@ class funct : public estructura{
             }
             return false;
         }
+        palabra getNombre() { return this->nombre;}
+        palabra getType() { return type;}
+        map<palabra,palabra> getArguments() { return arguments; } ;
+        palabra getPalabra() { return estructura::getPalabra(); }
+        bool isDeclared() { return declared;}
     private:
         palabra type;
         palabra nombre;
         map<palabra, palabra> arguments;
         palabra retur;
         int bloque;
-        bool delcared;
+        bool declared;
 };
