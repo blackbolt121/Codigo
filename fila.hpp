@@ -5,7 +5,9 @@
 #include "function.hpp"
 class fila {
     public: 
-        fila(){}
+        fila(){
+            
+        }
         fila(declaracion p){
         }
         fila(funct f){
