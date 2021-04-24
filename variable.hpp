@@ -13,8 +13,7 @@ class fila {
         }
     private:
         int dim;
-        palabra var;
-        palabra type;
+        palabra var, type;
         string identificador;
         int type2, estado, bloque;
         vector<int> referencias;
