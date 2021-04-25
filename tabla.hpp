@@ -1,17 +1,4 @@
-#pragma once
-#include <iostream>
-#include "function.hpp"
-#include "condicional.hpp"
-#include "palabra.hpp"
-#include "declaracion.hpp"
-#include "array.hpp"
-#include "condicional.hpp"
-#include "blanceo.hpp"
-#include "encabezado.hpp"
-#include "namespacing.hpp"
-#include "asignacion.hpp"
-#include "fila.hpp"
-#include <map>
+#include "allheaders.hpp"
 using namespace std;
 class tabla {
     public:
@@ -22,7 +9,8 @@ class tabla {
             fila f(d);
             cout << f << endl;
             if(contenido.find(d.getVarName()) == contenido.end()){
-                contenido.insert(pair<string, fila>(f.getIdentificador(), f));
+                if(d.getType().getType() != 12)
+                    contenido.insert(pair<string, fila>(f.getIdentificador(), f));
             }
             else{
                 fila aux = contenido[f.getIdentificador()];
@@ -54,26 +42,110 @@ class tabla {
             /*
                 LINEAS DE CODIGO NECESARIAS PARA VERIFICAR QUE LA VARIABLE A LA QUE SE ESTE HACIENDO REFERENCIA EXISTA
             */
-            if(contenido.find(as.getVarName()) != contenido.end()){ //CHECA SI SE ENCUENTRA EN LA TABLA DE SIMBOLOS
-                if(contenido[as.getVarName()].getType2() == 0){ //CHECA QUE DE ENCONTRARSE EN LA TABLA, SEA UNA VARIABLE Y NO UNA FUNCION
-                    if(as.getVar().getCodeBlock().isChild(contenido[as.getVarName()].getVar().getBloque())){ //CHECA QUE ESTEN DENTRO DEL MISMO SCOPE
-                        //AQUI VERIFICAMOS QUE LO QUE TENGA ASIGNADO CORRESPONDA AL TIPO
-                        contenido[as.getVarName()].setEstado(1);
-                        contenido[as.getVarName()].insertarReferencia(as.getVar().getRenglon());
-                    }else{
-                        // "Error variable no declarada en este scope ";
-                    }
-                    
-                }else{
-                    // "Error variable no encontrada, solo como funcion " << endl;
-                }
+            if(isInBars(as)){
+                cout << "Si se puede asignar..." << endl;
+                
             }else{
-                // "Error variable no declarada en la tabla de simbolos" << endl;
+                cout << "no se puede asignar..." << endl;
             }
 
         }
         void buscar(condicional con){
 
+        }
+        bool isInBars(string varname){ //Solo pregunta si la variable esta en la tabla de simbolos
+            if (contenido.find(varname)!=contenido.end()) { //Verifica que este en la tabla de simbolos
+                if(contenido[varname].getType2() == 0){ //Verfica que lo que esta en la tabla sea una variable
+                    return true;
+                }
+            }
+            return false;   
+        }
+        bool isInBars(variable as){
+            string varname = as.getVarname();
+            cout << varname << endl;
+            if (contenido.find(varname)!=contenido.end()) { //Verifica que este en la tabla de simbolos
+                if(contenido[varname].getType2() == 0){ //Verfica que lo que esta en la tabla sea una variable
+                    if(as.getVariable().getCodeBlock().isChild(contenido[varname].getBloque())){ //Verifica que este en el escope
+                        if(contenido[varname].getDim() == 1){
+                            return true;
+                        }else{
+                            if( contenido[varname].getDim() > as.getDim() && as.getDim() >= 0 ){
+                                return true;
+                            }else{
+                                cout << "Direccion no valida..." << endl;
+                            }
+                        }
+                        
+                    }
+                }
+            }else{
+                cout << "Variable no en tabla" << endl;
+            }
+            return false;
+        };
+        bool isInBars(asignacion as){
+            string varname = as.getVarName();
+            cout << varname << endl;
+            if (contenido.find(varname)!=contenido.end()) { //Verifica que este en la tabla de simbolos
+                if(contenido[varname].getType2() == 0){ //Verfica que lo que esta en la tabla sea una variable
+                    if(as.getVar().getCodeBlock().isChild(contenido[varname].getBloque())){ //Verifica que este en el escope
+                        if(contenido[varname].getDim() == 1){
+                            return true;
+                        }else{
+                            if( contenido[varname].getDim() > as.getSize() && as.getSize() >= 0 ){
+                                return true;
+                            }else{
+                                cout << "Direccion no valida..." << endl;
+                            }
+                        }
+                        
+                    }
+                }
+            }else{
+                cout << "Variable no en tabla" << endl;
+            }
+            return false;
+        }
+        bool verificarCoherencia(list<variable> vars, string ref){
+            int type = contenido[ref].getType().getType();
+            bool evaluation = true;
+            auto validar = [type](variable var) -> bool {
+                switch(type){
+                    case 11:
+                        if(var.getType() == 11){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                        break;
+                    case 13: //No puede asignarse un valor void
+                        return false;
+                        break;
+                    //En caso de que sean numeros
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 12:
+                        if( var.getType() == 8 || var.getType() == 9 || var.getType() == 10 || var.getType() == 12 ){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                        break;
+                    default:
+                        return false;
+                        break;
+                }
+            };
+            for(variable v : vars){
+                evaluation = evaluation && validar(v);
+                if(!isInBars(v)){
+                    evaluation = evaluation && false;
+                    cout << "Operando no valido...";
+                }
+            }
+            return evaluation;
         }
     private:
         map<string, fila> contenido;
