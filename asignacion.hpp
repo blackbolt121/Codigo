@@ -4,23 +4,30 @@ using namespace std;
 class asignacion : estructura{
     public:
         asignacion() : estructura(){
-
+            esArray = false;
         }
         palabra getVar(){return var;}
         list<palabra> getOperadores(){return operadores;}
         void setVar(palabra p){
             this->var = p;
         }
+        void setIsArray(bool r) { esArray =  r; }
+        void setVarName(string varname) { this->varname = varname; }
         void insertarOperador(palabra p){
             operadores.push_back(p);
         }
+        void setSize(int size) { dim = size; }
+        int getSize() { return dim; }
         palabra getPalabra(){
             return this->palabra_clave;
         }
+        string getVarName() { return varname; }
         static asignacion process(queue<palabra> &q){
             bool asignado = false;
             palabra p;
             asignacion as;
+            smatch m;
+            const regex r("(^[_$a-zA-Z]+[_$a-zA-Z0-9]*(\\[([_$a-zA-Z]+[_$a-zA-Z0-9]*|[0-9]+)\\])+$)");
             while(!q.empty()){
                 p = q.front();
                 switch(p){
@@ -50,8 +57,30 @@ class asignacion : estructura{
                     case 31: //En caso de encontrar una variable
                         if(!asignado){
                             as.setPalabraClave(p);
+                            string varN = p.getWord(), aux = "";
                             as.setVar(p);
-                            cout << p.getCodeBlock().getBlock() << endl;;
+                            if(regex_search(varN , m, r)){
+                                as.setIsArray(true);
+                                for(char s : varN){
+                                    if(s != '[' && s != ']'){
+                                        aux+=s;
+                                    }else{
+                                        if(s == '['){
+                                            as.setVarName(aux);
+                                            cout << aux << endl;
+                                            aux = "";
+                                        }else if(s == ']'){
+                                            as.setSize(stoi(aux));
+                                        }
+                                        
+                                    }
+                                }
+                                
+                            }else{
+                                as.setVarName(varN);
+                                as.setVar(p);
+                            }
+                            asignado = true;
                         }else{
                             as.insertarOperador(p);
                         }
@@ -73,6 +102,7 @@ class asignacion : estructura{
     private:
         palabra type;
         palabra var;
+        string varname;
         list<palabra> operadores;
         bool esArray;
         int dim;

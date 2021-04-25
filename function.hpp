@@ -1,3 +1,4 @@
+#pragma once
 #include "estructura.hpp"
 #include "iostream"
 #include <map>

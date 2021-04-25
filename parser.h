@@ -106,7 +106,6 @@ void parser::analize(const string& rute){
         cola = cola2;
         while(!cola.empty()){
             s.analalize(cola.front());
-            cout << cola.front().getWord() << endl;
             cola.pop();
         }
         s.mostrarDeclaraciones();

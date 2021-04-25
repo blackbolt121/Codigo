@@ -2,16 +2,7 @@
 #include <iostream>
 #include <list>
 #include <regex>
-#include "function.hpp"
-#include "condicional.hpp"
-#include "palabra.hpp"
-#include "declaracion.hpp"
-#include "array.hpp"
-#include "condicional.hpp"
-#include "blanceo.hpp"
-#include "encabezado.hpp"
-#include "namespacing.hpp"
-#include "asignacion.hpp"
+#include "tabla.hpp"
 class semantica{
     public:
         semantica(){
@@ -45,6 +36,7 @@ class semantica{
         list<arreglo> arr;
         list<asignacion> asig;
         list<funct> funciones;
+        tabla simbolos;
         void limpiarCola(){
             while(!cache.empty()){
                 cache.pop();
@@ -83,96 +75,8 @@ void semantica::mostrarAsignaciones(){
     }
 }
 void semantica::analalize(palabra p){
-    /*
-    //Este analizador parte del hecho de que la sintaxis esta bien puesto que ya paso por un parse
-    cout << p.getWord() << " " << p.getBloque() << endl;
-    getchar();
-    b.insertarPalabra(p);
-    if(p != 45 && p != 46 && p != 38 && p != 39 && p != 40 && p != 41){
-        cache.push(p);
-        cout << cache.size() <<" " << cache.front().getWord() << endl;
-    }    
-    if(8<=p && p<=12){
-        esDeclarado = true;
-    }
-    if(p == 0){
-    }
-    if(p == 31 && !esDeclarado){
-        //Se trata de una asignación puesto que al recibir un ID y no se detecto una declaracion puede ser una asignación o llamada a una funcion
-        esAsignado = true;
-    }else if(p == 31){
-        smatch s;
-        lastVar = p;
-        regex r(".+\\[.+\\]");
-        string aux = p.getWord();
-        esArray = regex_search(aux, s, r);
-
-    }else if(p == 39 && !noParentesis){
-        esDeclarado = false;
-        esAsignado = false;
-        esFuncion = true;
-    }
-    if(esDeclarado){
-            if(p == 39){
-                esFuncion = true;
-                esDeclarado = false;
-                esAsignado = false;
-                cout << "Es una funcion" << endl;
-            }
-            if(p == 46 || p == 45){ //Si es un punto y coma o igual
-                if(p == 45){ //En caso de tener un igual en la misma linea de declaracion entonces, activamos la bandera de asignacion
-                    esAsignado = true;
-                    declaracion d = declaracion::process(cache);
-                    cout << d.id.getWord() << " " << d.palabra_clave.getWord() << endl;
-                    declaraciones.push_back(d);
-                }
-                if(p == 46){ //Si es un punto y coma se procesa la cola...
-                    lastVar = palabra();
-                    if(esArray == false){
-                        //Se va a guardar una declaracion
-                        declaracion d = declaracion::process(cache);
-                        cout << d.id.getWord() << " " <<  d.palabra_clave.getWord();
-                        declaraciones.push_back(d);
-                    }
-                    else{
-                        esArray = false;
-                    }
-                }
-                esDeclarado = false; //Como ya recibimos un igual ó un punto y coma entonces la asignación a terminado
-            }
-        }
-    if(esAsignado){
-        if(p == 45 && !noParentesis){
-            noParentesis = true;
-        }
-        if(p == 46){
-            cout << "Creando asignacion" << endl;
-            asignacion as = asignacion::process(cache);
-            cout << as.getPalabra().getWord() << endl;
-            for(palabra aux : as.getOperadores()){
-                cout << aux.getWord() << " ";
-            }
-            cout << endl;
-            this->asig.push_back(as);
-            esAsignado = false;
-
-        }
-        
-    }
-    if(esFuncion){
-        if(p == 38){
-            while(!cache.empty()){
-                cache.pop();
-            }
-            esFuncion = false;
-        }
-    }
-    if(p == 46){
-        this->setAllFalse();
-    }
-    getchar();
-    */
    this->controller(p);
+
 }
 void semantica::controller(palabra p){
     this->cache.push(p);
@@ -268,6 +172,7 @@ void semantica::controller(palabra p){
             }else if(esFuncion){
                 funct foo = funct::process(cache);
                 funciones.push_back(foo);
+                //simbolos.insertar(foo);
                 limpiarCola();
                 //Aqui vaciamos la cola
             }else if(esWhile){
@@ -281,9 +186,11 @@ void semantica::controller(palabra p){
         case 45: //Igual
             if(esDeclarado){
                 //Se debe guardar la declaracion
-                declaracion d = declaracion::process(cache);
-                declaraciones.push_back(d);
+                declaracion dec = declaracion::process(cache);
+                declaraciones.push_back(dec);
+                simbolos.insertar(dec);
                 setAllFalse();
+                
                 esAsignado = true;
                 cache.push(lastvar);
                 cache.push(p);
@@ -300,6 +207,7 @@ void semantica::controller(palabra p){
                 
                 declaracion dec = declaracion::process(cache);
                 declaraciones.push_back(dec);
+                simbolos.insertar(dec);
                 
                 setAllFalse();
 
@@ -310,9 +218,9 @@ void semantica::controller(palabra p){
                 setAllFalse();
                 
             }else if(esAsignado){
-                cout << cache.size() << endl;
                 asignacion as = asignacion::process(cache);
                 asig.push_back(as);
+                simbolos.buscar(as);
                 limpiarCola();
                 setAllFalse();
 
