@@ -12,6 +12,7 @@ class variable{
 
         }
         variable(palabra &p){
+            dim = 1;
             this->p = p;
             smatch m;
             string varN = p.getWord(), aux = "";
@@ -23,10 +24,9 @@ class variable{
                     }else{
                         if(s == '['){
                             varname = aux;
-                            cout << aux << endl;
                             aux = "";
                         }else if(s == ']'){
-                            dim *= stoi(aux);
+                            dim = stoi(aux);
                         }
                     }
                 } 
@@ -47,7 +47,7 @@ class variable{
             return type;
         }
         int getDim(){
-            this->dim;
+            return this->dim;
         }
         bool isArray(){
             return esArray;
@@ -55,6 +55,7 @@ class variable{
         string getVarname(){
             return varname;
         }
+        friend bool operator == (variable v, palabra p){ return ( v.p.getWord().compare(p.getWord()) == 0 ); }
     private:
         palabra p, type;
         string varname;

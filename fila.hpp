@@ -14,6 +14,7 @@ class fila {
             estado = 0;
             var = d.getID();
             (d.isArray()) ? dim = d.getSize() : dim = 1;
+            esArray = d.isArray();
             identificador = d.getVarName();
             type2 = 0;
             type = d.getType();
@@ -35,6 +36,7 @@ class fila {
             estado = 0;
             var = d.getID();
             (d.isArray()) ? dim = d.getSize() : dim = 1;
+            esArray = d.isArray();
             identificador = d.getVarName();
             type2 = 0;
             type = d.getType();
@@ -63,6 +65,7 @@ class fila {
         int getBloque() { return bloque; }
         estructura* getEstructura() { return es; }
         vector<int> getRef() { return referencias; }
+        bool isArray() { return esArray; }
         friend ostream& operator<< (ostream& os, fila f){ 
             //Identificador 
             os << f.identificador << " " << ((f.estado == 0)? "no definido ": "definido ") << f.var.getRenglon() << " " << f.getDim() << " " << f.type.getWord() << ((f.type2 == 0)? " variable" : " funcion ");
@@ -75,6 +78,7 @@ class fila {
         }
     private:
         int dim;
+        bool esArray;
         palabra var, type;
         string identificador;
         int type2, estado, bloque;

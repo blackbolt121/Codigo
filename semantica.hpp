@@ -15,7 +15,6 @@ class semantica{
             semantica s;
             balanceo b;
             while(!q.empty()) {
-                cout << q.front().getWord() << endl;
                 b.insertarPalabra(q.front());
                 s.analalize(q.front());
                 q.pop();
@@ -27,6 +26,7 @@ class semantica{
         }
         void mostrarDeclaraciones();
         void mostrarAsignaciones();
+        void mostrarTabla();
     private:
         void controller(palabra p);
         list<declaracion> declaraciones;
@@ -55,7 +55,7 @@ class semantica{
 void semantica::mostrarDeclaraciones(){
     cout << endl << "Tipo\tNombre" << endl;
     for(declaracion d : declaraciones){
-        cout << d.getType().getWord() << "\t" << d.getVarName() << " variable en bloque "  << d.getID().getBloque() << " Padres: ";
+        cout << d.getType().getWord() << "\t" << d.getVarName();
         for(int i : d.getID().getCodeBlock().getParent()){
             cout << i << " "; 
         }
@@ -73,6 +73,10 @@ void semantica::mostrarAsignaciones(){
         }
         cout << endl;
     }
+}
+void semantica::mostrarTabla(){
+    simbolos.mostrarTabla();
+    
 }
 void semantica::analalize(palabra p){
    this->controller(p);
@@ -112,7 +116,6 @@ void semantica::controller(palabra p){
         case 24: //Palabra IF
 
             setAllFalse();
-            cout << "Encontramos un if" << endl;
             esIF = true;
             //Así activamos la bandera de if
             break;
@@ -143,7 +146,6 @@ void semantica::controller(palabra p){
             }
             break;
         case 39: //Parentesis izquierdo (
-            cout << "Posible funcion...";
             if(last == 31){
                 if((esDeclarado || esAsignado) && last == 31){ //Si la palabra anterior era una variable entonces s y tenemos una bandera de declaracion o asignacion entonces se trata de una funcion
                 //llamada de una funcion o una declaracion de una funcion
@@ -151,8 +153,6 @@ void semantica::controller(palabra p){
                     this->setAllFalse();
                     esFuncion = true;
                 }
-            }else{
-                cout << "No se trata de una funcion...";
             }
             
             break;
@@ -172,7 +172,7 @@ void semantica::controller(palabra p){
             }else if(esFuncion){
                 funct foo = funct::process(cache);
                 funciones.push_back(foo);
-                //simbolos.insertar(foo);
+                simbolos.insertar(foo);
                 limpiarCola();
                 //Aqui vaciamos la cola
             }else if(esWhile){
@@ -204,7 +204,6 @@ void semantica::controller(palabra p){
 
         case 46: //Punto y coma
             if(esDeclarado){ //En caso de que se haya declarado entonces se guarda la declaracion
-                
                 declaracion dec = declaracion::process(cache);
                 declaraciones.push_back(dec);
                 simbolos.insertar(dec);

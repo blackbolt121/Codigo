@@ -15,7 +15,6 @@ class codeblock {
         int getBlock() { return bloq;}
         void insertParents(stack<int> vec){
             while(!vec.empty()){
-                cout << vec.top() << endl;
                 if(!isChild(vec.top()))
                     parent.push_back(vec.top());
                 vec.pop();

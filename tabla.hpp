@@ -7,7 +7,6 @@ class tabla {
         */
         void insertar(declaracion d){
             fila f(d);
-            cout << f << endl;
             if(contenido.find(d.getVarName()) == contenido.end()){
                 if(d.getType().getType() != 12)
                     contenido.insert(pair<string, fila>(f.getIdentificador(), f));
@@ -42,18 +41,18 @@ class tabla {
             /*
                 LINEAS DE CODIGO NECESARIAS PARA VERIFICAR QUE LA VARIABLE A LA QUE SE ESTE HACIENDO REFERENCIA EXISTA
             */
-            if(isInBars(as)){
-                cout << "Si se puede asignar..." << endl;
+            if(isInBars(as)){ //Si la asignacion esta dentro de las variables, entonces verificamos la coherencia de la expresion
                 
+        
             }else{
-                cout << "no se puede asignar..." << endl;
+                
             }
 
         }
         void buscar(condicional con){
 
         }
-        bool isInBars(string varname){ //Solo pregunta si la variable esta en la tabla de simbolos
+        bool isInBars(string varname){ //Solo pregunta si la variable esta en la tabla de simbolos con su identificador
             if (contenido.find(varname)!=contenido.end()) { //Verifica que este en la tabla de simbolos
                 if(contenido[varname].getType2() == 0){ //Verfica que lo que esta en la tabla sea una variable
                     return true;
@@ -61,22 +60,35 @@ class tabla {
             }
             return false;   
         }
-        bool isInBars(variable as){
+        bool isInBars(variable as){ //Verificamos si una variable esta dentro de la tabla de simbolos
             string varname = as.getVarname();
-            cout << varname << endl;
             if (contenido.find(varname)!=contenido.end()) { //Verifica que este en la tabla de simbolos
                 if(contenido[varname].getType2() == 0){ //Verfica que lo que esta en la tabla sea una variable
                     if(as.getVariable().getCodeBlock().isChild(contenido[varname].getBloque())){ //Verifica que este en el escope
-                        if(contenido[varname].getDim() == 1){
-                            return true;
-                        }else{
-                            if( contenido[varname].getDim() > as.getDim() && as.getDim() >= 0 ){
+                        if(!contenido[varname].isArray()){
+                            if(!as.isArray()){
+                                contenido[varname].setEstado(1);
                                 return true;
-                            }else{
-                                cout << "Direccion no valida..." << endl;
                             }
+                        }else{
+                            if(as.isArray()){ //Comparamos que la variable 
+                                if( contenido[varname].getDim() > as.getDim() && as.getDim() >= 0 )
+                                {
+                                    contenido[varname].setEstado(1);
+                                    return true;
+                                }
+                                else
+                                {
+                                    cout << "Direccion no valida..." << endl;
+                                }
+                            }else{
+
+                            }
+                            
                         }
                         
+                    }else{
+                        cout << "Variable no disponible...";
                     }
                 }
             }else{
@@ -84,22 +96,43 @@ class tabla {
             }
             return false;
         };
-        bool isInBars(asignacion as){
+        bool isInBars(asignacion as){ //Verificamos que la variable por asignar este en la tabla de simbolos
             string varname = as.getVarName();
-            cout << varname << endl;
             if (contenido.find(varname)!=contenido.end()) { //Verifica que este en la tabla de simbolos
                 if(contenido[varname].getType2() == 0){ //Verfica que lo que esta en la tabla sea una variable
                     if(as.getVar().getCodeBlock().isChild(contenido[varname].getBloque())){ //Verifica que este en el escope
-                        if(contenido[varname].getDim() == 1){
-                            return true;
-                        }else{
-                            if( contenido[varname].getDim() > as.getSize() && as.getSize() >= 0 ){
-                                return true;
-                            }else{
-                                cout << "Direccion no valida..." << endl;
+                        if(!contenido[varname].isArray()) //Si la variable en la tabla no es un arreglo
+                        {
+                            if(!as.isArray()){
+                                if(verificarCoherencia(as)){
+                                    contenido[varname].insertarReferencia(as.getVar().getRenglon());
+                                    contenido[varname].setEstado(1);
+                                    return true;
+                                }else{
+                                    cout << "Asignacion no valida " << endl;
+                                }
                             }
                         }
-                        
+                        else
+                        {
+                            if( as.isArray() ){
+                                if( contenido[varname].getDim() > as.getSize() && as.getSize() >= 0 )
+                                {
+                                    if(verificarCoherencia(as)){
+                                        contenido[varname].insertarReferencia(as.getVar().getRenglon());
+                                        contenido[varname].setEstado(1);
+                                        return true;
+                                    }else{
+                                        cout << "Los operandos ingresado no son validos..." << endl;
+                                    }
+                                }
+                                else
+                                {
+                                    cout << "Direccion no valida..." << endl;
+                                }
+                            }
+                        }
+
                     }
                 }
             }else{
@@ -107,46 +140,139 @@ class tabla {
             }
             return false;
         }
-        bool verificarCoherencia(list<variable> vars, string ref){
-            int type = contenido[ref].getType().getType();
-            bool evaluation = true;
-            auto validar = [type](variable var) -> bool {
-                switch(type){
-                    case 11:
-                        if(var.getType() == 11){
-                            return true;
-                        }else{
-                            return false;
+        bool verificarCoherencia(asignacion as){ //Verificamos lo coherencia de la asignacion
+                string ref = as.getVarName();
+                list<variable> &vars = as.getVarAsign();
+                int type = contenido[ref].getType().getType();
+                bool evaluation = true;
+                for(palabra p : as.getOperadores()){ //Verificamos que todos 
+                    if(27<=p && p<=30) //Validamos el valor
+                        evaluation = evaluation && validarValores(type, p);
+                    else if( p==37 || ( 42<=p && p<=44) || (48<=p && p<=51) || (56<=p && p<=61)) //Validamos el operador
+                        evaluation = evaluation && validarOperadores(type, p);
+                    else if( p == 31) {
+                        variable v (p) ;
+                        evaluation = evaluation && validarVariables(type, v);
+                        if( !isInBars(p.getWord()) ) //Si la variable no esta en la variable de simbolos entonces 
+                        {
+                            evaluation = evaluation && false;
+                        }else
+                        {
+                            list<variable>::iterator it;
+                            if ( find(vars.begin(), vars.end(), p) != vars.end() )
+                            {
+
+                                it = find(vars.begin(), vars.end(), p);
+
+                                if( it != vars.end() )
+                                { //Validación por seguridad
+                                    if( isInBars(*it) )
+                                    { //Si la variable esta en la tabla de simbolos entonces verificamos que sean del mismo tipo
+
+                                        evaluation = evaluation && validarVariables(type,*it); //Esta funcion nos ayuda a verificar que la variable contra la que estemos asignando sea del mismo tipo
+
+                                    }
+                                }
+                                else
+                                {
+                                    evaluation = evaluation && false;
+                                }
+
+                            }
+
+                            else
+                            {
+                                evaluation = evaluation && false;
+                            }
+                            //Insertamos la referencia a la variable a la que se llamo
                         }
-                        break;
-                    case 13: //No puede asignarse un valor void
-                        return false;
-                        break;
-                    //En caso de que sean numeros
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 12:
-                        if( var.getType() == 8 || var.getType() == 9 || var.getType() == 10 || var.getType() == 12 ){
-                            return true;
-                        }else{
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                        break;
+                    }
                 }
-            };
-            for(variable v : vars){
-                evaluation = evaluation && validar(v);
-                if(!isInBars(v)){
-                    evaluation = evaluation && false;
-                    cout << "Operando no valido...";
+                return evaluation;
+            }
+            void mostrarTabla(){
+                for(auto aux : contenido){
+                    cout << aux.second << endl;
                 }
             }
-            return evaluation;
-        }
+            bool validarVariables(int type, variable var){
+                switch(type){
+                        //En caso de que la variable sea un string
+                        case 11:
+                            if(var.getType() == 11){ //El tipo de la variable debe ser un string si no entonces no puede ser una variable que se le pueda asignar
+                                return true;
+                            }else{
+                                return false;
+                            }
+                            break;
+                        case 13: //No puede asignarse un valor void
+                            return false;
+                            break;
+                        //En caso de que la variable sea numerica
+                        case 8:
+                            if(var.getType() >= 9 || var.getType() <= 10){
+                                return false;
+                            }else{
+                                return true;
+                            }
+                        case 9:
+                        case 10:
+                        case 12:
+                            if( (var.getType() >= 8 &&var.getType() <= 10) || var.getType() == 12 ){ //Solo se verifica que las variables sean numericas 
+                                return true;
+                            }else{ //De no ser numerico entonces no es valido
+                                return false;
+                            }
+                            break;
+                        default:
+                            return false;
+                            break;
+                    }
+            }
+            bool validarOperadores(int type, palabra p){
+                if( p==37 || ( 42<=p && p<=44) || (48<=p && p<=51) || (56<=p && p<=61))
+                {
+                    if ( (8<=type && type<= 10) || type == 12 )
+                    {
+
+                        return true;
+                    
+                    }
+                    if ( type == 11 )
+                    {
+                        if( p == 42 )
+                        {
+
+                            return true;
+
+                        }
+                 
+                    }
+                } 
+                return false;
+            }
+            bool validarValores(int type, palabra p){
+                if((8<=type && type<= 10) || type == 12){
+                    switch(p){ //Si el tipo es numerico y la palabra es un numero entonces tiene coherencia el operando
+                        case 27:
+                        case 28:
+                        case 29:
+                            if( type == 8 && (p == 28 || p == 29) ) //A un int no le podemos asignar un double o float
+                            {
+                                return false;
+                            }
+                            return true;
+                            break;
+                        default:
+                            break;
+                    }
+                }else if(type == 11){ //Si el operador es un string entonces la palabra debe ser un string
+                    if(p == 30){
+                        return true;
+                    }
+                }
+                return false;
+            }
     private:
         map<string, fila> contenido;
         list<int> errors;

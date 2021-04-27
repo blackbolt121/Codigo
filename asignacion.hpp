@@ -18,6 +18,7 @@ class asignacion : estructura{
         list<palabra> getOperadores(){ return operadores; }
         palabra getPalabra(){ return this->palabra_clave; }
         string getVarName() { return varname; }
+        bool isArray() { return esArray; }
         static asignacion process(queue<palabra> &q){
             bool asignado = false;
             palabra p;
@@ -51,14 +52,17 @@ class asignacion : estructura{
                         break;
                     case 31: //En caso de encontrar una variable
                         
-                        if(!asignado){
+                        if(!asignado)
+                        {
                             variable v(p);
                             as.setVar(p);
                             as.setIsArray(v.isArray());
                             as.setSize(v.getDim()); 
                             as.setVarName(v.getVarname());
                             asignado = true;
-                        }else{
+                        }
+                        else
+                        {
                             variable v(p);
                             as.insertarOperador(p);
                             as.insertVarAsign(v);

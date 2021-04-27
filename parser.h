@@ -94,7 +94,9 @@ void parser::analize(const string& rute){
     }
     //En caso de haber error de balanceo de parentesis o llaves ó un error de sintaxis entonces 
     if(hasError || b.isBalanceado() == false){
+        
         if(!b.isBalanceado()){
+            
             cout << "Error de balanceo en parentesis: ";
         }
         if(hasError){
@@ -108,7 +110,6 @@ void parser::analize(const string& rute){
             s.analalize(cola.front());
             cola.pop();
         }
-        s.mostrarDeclaraciones();
-        s.mostrarAsignaciones();
+        s.mostrarTabla();
     }
 }

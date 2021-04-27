@@ -26,6 +26,7 @@ void mostrarPalabras(){
     }
 }
 int main(){
+    int y = 3 > 2;
     parser parser("nodos.csv","relaciones.csv", 100);
     parser.analize("prueba.cpp");
     /*

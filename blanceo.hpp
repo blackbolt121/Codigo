@@ -64,7 +64,6 @@ void balanceo::insertarPalabra(palabra &p){
             bactual = bloque;
             if(p == 41){
                 codeblock c;
-                cout << b.size() << endl;
                 c.insertParents(b);
                 c.setBlock((bactual));
                 bloc.push_back(c);

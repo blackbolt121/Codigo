@@ -24,12 +24,22 @@ class condicional :public estructura{
                     case 24:
                         con.setPalabraClave(actual);
                         break;
-                    case 27-31:
-                    case 37-39:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 37:
+                    case 38:
+                    case 39:
                     case 42:
-                    case 43-44:
+                    case 43:
+                    case 44:
                     case 56:
-                    case 57-60:
+                    case 57:
+                    case 58:
+                    case 59:
+                    case 60:
                         con.insertInCondicion(actual);
                         break; //Guarda los operadores
                     case 41:
