@@ -5,7 +5,7 @@ class tabla {
         /*
 
         */
-        void insertar(declaracion d){
+        void insertar(declaracion &d){
             fila f(d);
             if(contenido.find(d.getVarName()) == contenido.end()){
                 if(d.getType().getType() != 12)
@@ -21,18 +21,28 @@ class tabla {
                 }
             }
         }
-        void insertar(funct f){
+        void insertar(funct &f){
             fila d;
             d.setFilaFuncion(f);
             if(contenido.find(d.getIdentificador()) == contenido.end())
                 contenido.insert(pair<string, fila>(d.getIdentificador(), d));
             else{
-                fila aux = contenido[d.getIdentificador()];
+                fila &aux = contenido[d.getIdentificador()];
                 if(aux.getType2() == 0){
                     cout << aux.getIdentificador() << " ya fue definido como variable " << endl;
                     errors.push_back(0);
                 }else{
-                    cout << aux.getIdentificador() << " ya fue definido como funcion " << endl;
+                    if( f.getType() == -1 ){
+                        if(f.getArguments().size() == contenido[d.getIdentificador()].getFunct()->getNArg()){
+                            cout << aux.getFunct()->getArguments().size() << " " << f.getArguments().size() << endl;
+                            aux.insertarReferencia(f.getPalabra().getRenglon()); //Verificamos que tengan la misma cantidad de argumentos
+                        }else{
+                            cout << "Faltan argumentos..." << endl;
+                        }
+                    }else{
+                        cout << aux.getIdentificador() << " ya fue definido como funcion " << endl;
+                    }
+                    
                 }
             }
         }
@@ -50,7 +60,34 @@ class tabla {
 
         }
         void buscar(condicional con){
-
+            for(palabra p : con.getCondicion()){
+                if( p != 31 && 27 <= p && p<= 31 ){
+                   if(!this->validarValores(29,p)) //Validamos como si se tratara de un numero decimal si recibimos un string mostraremos un error
+                   {
+                       
+                   }
+                }
+            }
+            for(variable &v : con.getVarsInCondition())
+            {
+                if(this->isInBars(v.getVarname()))
+                {
+                    v.setType(contenido[v.getVarname()].getType());
+                    if(!this->validarVariables(9,v))
+                    {
+                        cout << "No se puede ocupar string en la condicion " << endl;
+                    }
+                    else
+                    {
+                        contenido[v.getVarname()].insertarReferencia(v.getVariable().getRenglon());
+                    }
+                    
+                } //Buscamos si la variable se encuentra en en la tabla de simbolos, de lo contrario deberia mostrar un error
+                else
+                {
+                    
+                }
+            }
         }
         bool isInBars(string varname){ //Solo pregunta si la variable esta en la tabla de simbolos con su identificador
             if (contenido.find(varname)!=contenido.end()) { //Verifica que este en la tabla de simbolos
@@ -190,46 +227,51 @@ class tabla {
                 }
                 return evaluation;
             }
-            void mostrarTabla(){
+        void mostrarTabla(){
                 for(auto aux : contenido){
                     cout << aux.second << endl;
                 }
             }
-            bool validarVariables(int type, variable var){
-                switch(type){
-                        //En caso de que la variable sea un string
-                        case 11:
-                            if(var.getType() == 11){ //El tipo de la variable debe ser un string si no entonces no puede ser una variable que se le pueda asignar
-                                return true;
-                            }else{
+        bool validarVariables(int type, variable var){
+            if (8<= type && type <= 12){
+                    switch(type){
+                            //En caso de que la variable sea un string
+                            case 11:
+                                if(var.getType() == 11){ //El tipo de la variable debe ser un string si no entonces no puede ser una variable que se le pueda asignar
+                                    return true;
+                                }else{
+                                    return false;
+                                }
+                                break;
+                            case 13: //No puede asignarse un valor void
                                 return false;
-                            }
-                            break;
-                        case 13: //No puede asignarse un valor void
-                            return false;
-                            break;
-                        //En caso de que la variable sea numerica
-                        case 8:
-                            if(var.getType() >= 9 || var.getType() <= 10){
+                                break;
+                            //En caso de que la variable sea numerica
+                            case 8:
+                            case 12:
+                                if(var.getType() >= 9 || var.getType() <= 10){ //En caso de ser un int no se le puede asignar un double
+                                    return false;
+                                }else{
+                                    return true;
+                                }
+                                break;
+                            case 9:
+                            case 10:
+                                if( (var.getType() >= 8 &&var.getType() <= 10) || var.getType() == 12 ){ //Solo se verifica que las variables sean numericas de tipo flotantes
+                                    return true;
+                                }else{ //De no ser numerico entonces no es valido
+                                    return false;
+                                }
+                                break;
+                            default:
                                 return false;
-                            }else{
-                                return true;
-                            }
-                        case 9:
-                        case 10:
-                        case 12:
-                            if( (var.getType() >= 8 &&var.getType() <= 10) || var.getType() == 12 ){ //Solo se verifica que las variables sean numericas 
-                                return true;
-                            }else{ //De no ser numerico entonces no es valido
-                                return false;
-                            }
-                            break;
-                        default:
-                            return false;
-                            break;
-                    }
+                                break;
+                        }
             }
-            bool validarOperadores(int type, palabra p){
+            return false;
+            
+        }
+        bool validarOperadores(int type, palabra p){
                 if( p==37 || ( 42<=p && p<=44) || (48<=p && p<=51) || (56<=p && p<=61))
                 {
                     if ( (8<=type && type<= 10) || type == 12 )
@@ -251,7 +293,7 @@ class tabla {
                 } 
                 return false;
             }
-            bool validarValores(int type, palabra p){
+        bool validarValores(int type, palabra p){
                 if((8<=type && type<= 10) || type == 12){
                     switch(p){ //Si el tipo es numerico y la palabra es un numero entonces tiene coherencia el operando
                         case 27:

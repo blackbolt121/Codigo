@@ -26,6 +26,15 @@ class balanceo{
         queue<palabra> returnError(){
             return error;
         }
+        stack<palabra> getParentesis(){
+            return p1;
+        }
+        stack<palabra> getLlaves(){
+            return p2;
+        }
+        queue<palabra> getError() {
+            return error;
+        }
     private:
         list<pair<palabra,palabra>> parentesis, llaves;
         stack<palabra> p1,p2,p3;

@@ -94,15 +94,29 @@ void parser::analize(const string& rute){
     }
     //En caso de haber error de balanceo de parentesis o llaves ó un error de sintaxis entonces 
     if(hasError || b.isBalanceado() == false){
-        
-        if(!b.isBalanceado()){
-            
-            cout << "Error de balanceo en parentesis: ";
-        }
         if(hasError){
             for(string s : errors){
                 cout << s << endl;
             }
+        }else if(!b.isBalanceado()){
+            queue<palabra> errores = b.getError();
+            stack<palabra> parentesis = b.getParentesis();
+            stack<palabra> llaves = b.getLlaves();
+            while(!errores.empty()){
+                (errores.front().getWord().compare(")") == 0)? cout << "Error de balanceo en parentesis sobrante: " << endl : cout << "Error de balanceo en llave sobrante" << endl;;
+                cout << errores.front().getWord() << " " << errores.front().getRenglon() << " " << errores.front().getInicio() << endl;
+                errores.pop();
+            }
+            while(!llaves.empty()){
+                cout << "Error en llave falta parentesis en: " << endl << "\t" << llaves.top().getWord() << " " << llaves.top().getRenglon() << " " << llaves.top().getInicio() << endl; 
+                llaves.pop();
+            }
+            while(!parentesis.empty()){
+                cout << "Error en llave falta parentesis en: " << endl << "\t" << parentesis.top().getWord() << " " << parentesis.top().getRenglon() << " " << parentesis.top().getInicio() << endl; 
+                parentesis.pop();
+            }
+            
+            
         }
     }else{
         cola = cola2;

@@ -9,8 +9,13 @@ class fila {
         fila(){
             estado = 0;
             es = NULL;
+            f = nullptr;
+            d = nullptr;
         }
         fila(declaracion &d){
+            f = nullptr;
+            es = &d;
+            this->d = &d;
             estado = 0;
             var = d.getID();
             (d.isArray()) ? dim = d.getSize() : dim = 1;
@@ -21,6 +26,9 @@ class fila {
             bloque = d.getID().getCodeBlock().getBlock();
         }
         fila(funct &f){
+            d = nullptr;
+            es = &f;
+            this->f = &f;
             estado = 0;
             dim = 0;
             var = f.getPalabra();
@@ -33,6 +41,9 @@ class fila {
             identificador = f.getNombre().getWord();
         }
         void setFilaDeclaracion(declaracion &d){
+            f = nullptr;
+            es = &d;
+            this->d = &d;
             estado = 0;
             var = d.getID();
             (d.isArray()) ? dim = d.getSize() : dim = 1;
@@ -43,6 +54,9 @@ class fila {
             bloque = d.getID().getCodeBlock().getBlock();
         }
         void setFilaFuncion(funct &f){
+            d = nullptr;
+            es = &f;
+            this->f = &f;
             estado = 0;
             dim = 0;
             var = f.getPalabra();
@@ -76,6 +90,12 @@ class fila {
             os << ")";
             return os;
         }
+        funct* getFunct(){
+            return this->f;
+        }
+        declaracion* getDeclaracion(){
+            return this->d;
+        }
     private:
         int dim;
         bool esArray;
@@ -83,5 +103,7 @@ class fila {
         string identificador;
         int type2, estado, bloque;
         estructura *es;
+        declaracion *d;
+        funct *f;
         vector<int> referencias;
 };

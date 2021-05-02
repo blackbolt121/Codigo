@@ -164,6 +164,7 @@ void semantica::controller(palabra p){
         case 41: //Llave izquierda
             if(esIF){
                 condicional con = condicional::process(cache);
+                simbolos.buscar(con);
                 limpiarCola();
                 //Aqui vaciamos la cola;
             }else if(esFor){
@@ -172,6 +173,7 @@ void semantica::controller(palabra p){
             }else if(esFuncion){
                 funct foo = funct::process(cache);
                 funciones.push_back(foo);
+                cout << foo.getNArg() << endl;
                 simbolos.insertar(foo);
                 limpiarCola();
                 //Aqui vaciamos la cola
@@ -214,6 +216,7 @@ void semantica::controller(palabra p){
                 
                 funct f = funct::process(cache);
                 funciones.push_back(f);
+                simbolos.insertar(f);
                 setAllFalse();
                 
             }else if(esAsignado){
