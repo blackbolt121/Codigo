@@ -6,6 +6,7 @@ class funct : public estructura{
     public:
         funct(){
             declared = false;
+            narg = 0;
         }
         static funct process(queue<palabra> q){
             funct foo;
@@ -39,8 +40,12 @@ class funct : public estructura{
                             foo.setPalabraClave(aux);
                             cont++;
                         }else{
-                            if(!foo.isInArgumentes(aux))
+                            if(!foo.isInArgumentes(aux)){
+                                cout << "Se ha agregado un argumento " << aux.getWord() << " " << auxt.getWord() << endl;
+                                foo.incArg();
                                 foo.addArgument(aux,auxt);
+                            }
+                                
                             else{
                                 foo.setHasError(true);
                             }
@@ -83,8 +88,11 @@ class funct : public estructura{
         palabra getType() { return type;}
         map<palabra,palabra> getArguments() { return arguments; } ;
         palabra getPalabra() { return estructura::getPalabra(); }
+        int getNArg() { return narg; }
+        void incArg() { narg++;}
         bool isDeclared() { return declared;}
     private:
+        int narg;
         palabra type;
         palabra nombre;
         map<palabra, palabra> arguments;

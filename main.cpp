@@ -26,23 +26,12 @@ void mostrarPalabras(){
     }
 }
 int main(){
+    
     int y = 3 > 2;
+    palabra p(",");
+    cout << p.getType() << endl;
     parser parser("nodos.csv","relaciones.csv", 100);
     parser.analize("prueba.cpp");
-    /*
-    queue<palabra> p = getPalabras("prueba.cpp");
-    balanceo b;
-    while(!p.empty()){
-        palabra w = p.front();
-        b.insertarPalabra(w);
-        cout << w.getType() << "  " << w.getWord() << " " << w.getNivel() << " " << w.getBloque() << endl;
-        p.pop();
-    }
-
-    cout << b.isBalanceado() << endl;
-    */
     
-    //semantica s = semantica::analizar(p);
-
     return 0;
 }

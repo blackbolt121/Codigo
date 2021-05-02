@@ -1,13 +1,16 @@
 #pragma once
 #include "estructura.hpp"
+#include "variable.hpp"
 #include <vector>
 using namespace std;
 
-class condicional :public estructura{
+class condicional : public estructura
+{
 
     public:
-        condicional() : estructura (){}
-        void setPalabraClave(palabra p){
+
+        condicional() {}
+        void setPalabraClave(palabra &p){
              if(p == 24){
                  this->palabra_clave = p;
                  pif = p;
@@ -15,11 +18,11 @@ class condicional :public estructura{
         }
         void insertInCondicion(palabra p){
             condicion.push_back(p);
-        } 
-        static condicional process(queue<palabra> q){
+        }
+        static condicional process(queue<palabra> &q){
             condicional con;
             while(!q.empty()) {
-                palabra actual = q.front();
+                palabra &actual = q.front();
                 switch(actual){
                     case 24:
                         con.setPalabraClave(actual);
@@ -29,6 +32,10 @@ class condicional :public estructura{
                     case 29:
                     case 30:
                     case 31:
+                        if(actual == 31){
+                            variable var(actual);
+                            con.insertVarsInCondition(var);
+                        }
                     case 37:
                     case 38:
                     case 39:
@@ -47,9 +54,7 @@ class condicional :public estructura{
                         return con;
                         break; // En caso de encontrarse con una { devuelve el objeto
                     case 46:
-                        if(q.size() == 1){
-                            return con;
-                        }
+                        return con;
                     default:
 
                         break; // En caso de que encuentre palabra no validas no las procesa
@@ -58,10 +63,24 @@ class condicional :public estructura{
             }
             return con;
         }
+        void insertVarsInCondition(variable &v){
+            vars.push_back(v);
+        }
+        vector<palabra> getCondicion(){
+            return condicion;
+        }
+        vector<variable> getVarsInCondition(){
+            return vars;
+        }
+        palabra getPalabra() {
+            return pif;
+        }
 
     private:
+
         palabra pif;
-        palabra elsef;
-        vector<palabra> elif;
         vector<palabra> condicion;
+        vector<variable> vars;
+        condicional *con;
+        
 };
