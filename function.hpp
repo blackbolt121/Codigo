@@ -27,6 +27,12 @@ class funct : public estructura{
                             auxt = aux;
                         }
                         break;
+                    case 27: //Para en caso de que se encuentre tipos varn
+                    case 28:
+                    case 29:
+                    case 30:
+
+                        break;
                     case 41:
                         foo.setBloque(aux.getBloque());
                         foo.setDelared();
@@ -41,11 +47,9 @@ class funct : public estructura{
                             cont++;
                         }else{
                             if(!foo.isInArgumentes(aux)){
-                                cout << "Se ha agregado un argumento " << aux.getWord() << " " << auxt.getWord() << endl;
                                 foo.incArg();
-                                foo.addArgument(aux,auxt);
+                                foo.addArgument(auxt, aux);
                             }
-                                
                             else{
                                 foo.setHasError(true);
                             }
@@ -58,7 +62,8 @@ class funct : public estructura{
                         break;
                 }
                 q.pop();
-            }   
+            }
+            return foo;
         }
         void setType(palabra type){
             this->type = type;
@@ -67,7 +72,7 @@ class funct : public estructura{
             this->nombre = nombre;
         }
         void addArgument(palabra type, palabra var){
-            this->arguments[var] = type;
+            this->arguments[var.getWord()] = type;
         }
         void setReturn(palabra retur){
             this->retur = retur;
@@ -79,14 +84,16 @@ class funct : public estructura{
             this->declared = true;
         }
         bool isInArgumentes(palabra p){
-            if(arguments.find(p) != arguments.end()){
-                return true;
+            for(pair<string,palabra> aux : arguments){
+                if(aux.first.compare(p.getWord().c_str()) == 0){
+                    return true;
+                }       
             }
             return false;
         }
         palabra getNombre() { return this->nombre;}
         palabra getType() { return type;}
-        map<palabra,palabra> getArguments() { return arguments; } ;
+        map<string,palabra> getArguments() { return arguments; } ;
         palabra getPalabra() { return estructura::getPalabra(); }
         int getNArg() { return narg; }
         void incArg() { narg++;}
@@ -95,7 +102,7 @@ class funct : public estructura{
         int narg;
         palabra type;
         palabra nombre;
-        map<palabra, palabra> arguments;
+        map<string, palabra> arguments;
         palabra retur;
         int bloque;
         bool declared;

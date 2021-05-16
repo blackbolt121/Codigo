@@ -1,6 +1,7 @@
 #include "estructura.hpp"
 #include "variable.hpp"
 #include <list>
+#include "rpn.hpp"
 using namespace std;
 class asignacion : estructura{
     public:
@@ -18,6 +19,18 @@ class asignacion : estructura{
         list<palabra> getOperadores(){ return operadores; }
         palabra getPalabra(){ return this->palabra_clave; }
         string getVarName() { return varname; }
+        void construir(){
+            if(operadores.size() > 0){
+                list<palabra> aux = list<palabra>(operadores.begin(), operadores.end());
+                this->r.setOperadores(aux);
+                this->r.construir();
+                cout << "Tamaño expresion: " << r.getPolish().size() << endl;
+                for(palabra p : r.getPolish()){
+                    cout << p.getWord() << " ";
+                }
+                cout << endl;
+            }
+        }
         bool isArray() { return esArray; }
         static asignacion process(queue<palabra> &q){
             bool asignado = false;
@@ -73,6 +86,10 @@ class asignacion : estructura{
                         asignado = true;
                         break;
                     case 46:
+                        for(palabra p : as.getOperadores()){
+                            cout << p.getWord() << " ";
+                        }
+                        cout << endl;
                         return as;
                     default:
                         break;
@@ -89,4 +106,5 @@ class asignacion : estructura{
         list<variable> vars;
         bool esArray;
         int dim;
+        rpn r;
 };

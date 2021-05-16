@@ -13,22 +13,14 @@ class rpn{
         static bool isVarn(palabra p);
         static int getHierarchy(palabra p);
         void construir();
+        list<palabra>& getPolish() {return this->polish; }
     private:
         list<palabra> operadores;
         list<palabra> polish;
         
 };
-void rpn::construir(){
-    if(operadores.size() == 0)
-        return ;
-    stack<palabra> var;
-    stack<palabra> op;
-    for(palabra aux : operadores){
 
-    }
-}
-
-
+// 
 int rpn::getHierarchy(palabra p){
     switch(p){
         case 37: //   * 
@@ -67,8 +59,8 @@ int rpn::getHierarchy(palabra p){
             break;
     }
 }
-bool isOperator(palabra p){
-    return ((42<=p && p<= 44) || (48<=p && p<=51) || (56<=p && p<=60));
+bool rpn::isOperator(palabra p){
+    return ((p == 37) ||(42<=p && p<= 44) || (48<=p && p<=51) || (56<=p && p<=60));
 }
 bool rpn::hierarchy(palabra a, palabra b){
     if(!rpn::isOperator(a) && !rpn::isOperator(b)) throw 1;
@@ -78,56 +70,67 @@ bool rpn::isVarn(palabra p){
     return (27<=p && p<=31);
 }
 void rpn::construir(){
-    if(operadores.size() == 0) return ;
-    stack<palabra> op;
-    for(palabra &p : operadores){
-        if(rpn::isVarn(p))
-            polish.push_back(p);
-        else if(rpn::isOperator(p)){
-            if(!op.empty()){
-                op.push(p);
-            }else{
-                palabra &aux = op.top();
-                if(rpn::hierarchy(p, aux)) //Aqui verificamos que p tenga menor jerarquia con el operador que se encuentra en la pila
-                {
-                    polish.push_back(aux);
-                    op.pop();
-                    while(!op.empty()){
-                        aux = op.top();
-                        if(rpn::hierarchy(p, aux)){
-                            polish.push_back(aux);
-                            op.pop();
-                        }else{
-                            break;
-                        }
-                    }
-                    op.push(p);
-                }
-                else
-                {
-                    op.push(p);
-                }
+    if(operadores.size() > 0){
+        stack<palabra> op;
+        for(palabra &p : operadores){
+            if(rpn::isVarn(p)){
+                polish.push_back(p);
             }
-
-        }else if(p == 39) { // Parentesis (
-            op.push(p);
-        }else if (p == 38) { // Parentesis )
-            while(!op.empty()){
-                if(op.top() == 39){
-                    break;
+            else if(rpn::isOperator(p)){
+                if(op.empty()){
+                    op.push(p);
                 }else{
-                    palabra &aux = op.top();
-                    polish.push_back(aux);
-                    op.pop();
+                    palabra aux = op.top();
+                    if(rpn::hierarchy(p, aux)) //Aqui verificamos que p tenga menor jerarquia con el operador que se encuentra en la pila
+                    {
+
+                        cout << aux.getWord();
+                        getchar();
+                        polish.push_back(aux);
+                        op.pop();
+                        while(!op.empty()){
+                            aux = op.top();
+                            cout << aux.getWord();
+                            getchar();
+                            if(rpn::hierarchy(p, aux)){
+                                polish.push_back(aux);
+                                op.pop();
+                            }else{
+                                break;
+                            }
+                            
+                        }
+                        getchar();
+                        op.push(p);
+                    }
+                    else
+                    {
+                        op.push(p);
+                    }
+                }
+
+            }else if(p == 39) { // Parentesis (
+                op.push(p);
+            }else if (p == 38) { // Parentesis )
+                while(!op.empty()){
+                    if(op.top() == 39){
+                        break;
+                    }else{
+                        palabra &aux = op.top();
+                        polish.push_back(aux);
+                        op.pop();
+                    }
                 }
             }
         }
-    }
-    if(!op.empty()){
-        while(!op.empty()){
-            palabra &aux = op.top();
-            polish.push_back(aux);
-            op.pop();
+        if(!op.empty()){
+            while(!op.empty()){
+                palabra &aux = op.top();
+                cout << aux.getWord() << endl;
+                polish.push_back(aux);
+                op.pop();
+            }
         }
+        cout << endl;
     }
 }

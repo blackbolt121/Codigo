@@ -55,11 +55,7 @@ class semantica{
 void semantica::mostrarDeclaraciones(){
     cout << endl << "Tipo\tNombre" << endl;
     for(declaracion d : declaraciones){
-        cout << d.getType().getWord() << "\t" << d.getVarName();
-        for(int i : d.getID().getCodeBlock().getParent()){
-            cout << i << " "; 
-        }
-        cout << endl;
+        
     }
     
 }
@@ -223,6 +219,7 @@ void semantica::controller(palabra p){
                 asignacion as = asignacion::process(cache);
                 asig.push_back(as);
                 simbolos.buscar(as);
+                
                 limpiarCola();
                 setAllFalse();
 
