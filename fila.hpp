@@ -68,7 +68,7 @@ class fila {
             bloque = f.getNombre().getCodeBlock().getBlock();
             identificador = f.getNombre().getWord();
         }
-        void insertarReferencia(int ref){ referencias.push_back(ref); }
+        void insertarReferencia(int ref){ if(find(referencias.begin(), referencias.end(), ref) == referencias.end()){ referencias.push_back(ref); } }
         void setEstado( int estado ) { this->estado = estado; }  
         int getDim() { return dim; }
         palabra getVar() { return var; }

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stack>
 #include <list>
+#include "rpn.hpp"
 #include "palabra.hpp"
 using namespace std;
 class rpn{
@@ -12,7 +13,10 @@ class rpn{
         static bool isOperator(palabra p);
         static bool isVarn(palabra p);
         static int getHierarchy(palabra p);
+        static bool esAritmetico(palabra p);
+        static bool esLogico(palabra p);
         void construir();
+        void notacionPolacaInversa();
         list<palabra>& getPolish() {return this->polish; }
     private:
         list<palabra> operadores;
@@ -36,7 +40,7 @@ int rpn::getHierarchy(palabra p){
             break;
         case 51: // &
         case 60: // &&
-              return 3;
+              return 1;
               break;
         case 50: // |
         case 61: // ||
@@ -48,7 +52,7 @@ int rpn::getHierarchy(palabra p){
         case 57: // !=
         case 58: // >=
         case 59: // <=
-            return 1;
+            return 3;
             break;
         case 38: // )
         case 39: // (
@@ -59,6 +63,7 @@ int rpn::getHierarchy(palabra p){
             break;
     }
 }
+
 bool rpn::isOperator(palabra p){
     return ((p == 37) ||(42<=p && p<= 44) || (48<=p && p<=51) || (56<=p && p<=60));
 }
@@ -83,17 +88,13 @@ void rpn::construir(){
                     palabra aux = op.top();
                     if(rpn::hierarchy(p, aux)) //Aqui verificamos que p tenga menor jerarquia con el operador que se encuentra en la pila
                     {
-
-                        cout << aux.getWord();
-                        getchar();
                         polish.push_back(aux);
                         op.pop();
                         while(!op.empty()){
                             aux = op.top();
-                            cout << aux.getWord();
-                            getchar();
                             if(rpn::hierarchy(p, aux)){
-                                polish.push_back(aux);
+                                if(p != 39)
+                                    polish.push_back(aux);
                                 op.pop();
                             }else{
                                 break;
@@ -114,10 +115,12 @@ void rpn::construir(){
             }else if (p == 38) { // Parentesis )
                 while(!op.empty()){
                     if(op.top() == 39){
+                        op.pop();
                         break;
                     }else{
                         palabra &aux = op.top();
-                        polish.push_back(aux);
+                        if(aux != 39)
+                            polish.push_back(aux);
                         op.pop();
                     }
                 }
@@ -126,11 +129,47 @@ void rpn::construir(){
         if(!op.empty()){
             while(!op.empty()){
                 palabra &aux = op.top();
-                cout << aux.getWord() << endl;
                 polish.push_back(aux);
                 op.pop();
             }
         }
         cout << endl;
+    }
+}
+bool rpn::esAritmetico(palabra p){
+    list<string> artimetic = {"+","-","*","/"};
+    return (find(artimetic.begin(), artimetic.end(), p.getWord()) != artimetic.end());
+}
+bool rpn::esLogico(palabra p){
+    list<string> logic = {">","<","<=",">=","&","|","&&","||","==","!="};
+    return (find(logic.begin(), logic.end(), p.getWord()) != logic.end());
+}
+void rpn::notacionPolacaInversa(){
+    stack<palabra> st;
+    for(palabra p : polish){
+        if(isVarn(p)){
+            st.push(p);
+        }else if(isOperator(p)){
+            if(st.size() >= 2){
+                if(esAritmetico(p)){
+                    palabra a = st.top();
+                    st.pop();
+                    palabra b = st.top();
+                    st.pop();
+                    cout << p.getWord() << " " << a.getWord() << " " << b.getWord() << " ax" << endl;
+                    st.push(palabra("ax"));
+                }else if(rpn::esLogico(p)){
+                    list<string> cmp = {">","<","<="};
+                    map<string,string> jmp = {{">","jng"},{"<","jnl"},{">=","jnge"},{"<=","jnle"},{"==","jne"},{"!=","je"}};
+                    cout << jmp[p.getWord()] << " " << st.top().getWord() << " ";
+                    st.pop();
+                    cout << st.top().getWord() << " etn" << endl;
+                    st.pop();
+                }
+                
+            }else{
+                
+            }
+        }
     }
 }

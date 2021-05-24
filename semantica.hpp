@@ -29,14 +29,8 @@ class semantica{
         void mostrarTabla();
     private:
         void controller(palabra p);
-        list<declaracion> declaraciones;
-        list<encabezado> enc;
-        list<namespacing> name;
-        list<condicional> con;
-        list<arreglo> arr;
-        list<asignacion> asig;
-        list<funct> funciones;
         tabla simbolos;
+        list<estructura*> es;
         void limpiarCola(){
             while(!cache.empty()){
                 cache.pop();
@@ -52,24 +46,7 @@ class semantica{
         regex r;
 
 };
-void semantica::mostrarDeclaraciones(){
-    cout << endl << "Tipo\tNombre" << endl;
-    for(declaracion d : declaraciones){
-        
-    }
-    
-}
-void semantica::mostrarAsignaciones(){
-    cout << "Variable Asignacion" << endl;
-    for(asignacion d : asig){
-        cout << d.getVar().getWord() << d.getVar().getBloque() << " ";
-        cout << "= ";
-        for(palabra aux : d.getOperadores()){
-            cout << aux.getWord() << " ";
-        }
-        cout << endl;
-    }
-}
+
 void semantica::mostrarTabla(){
     simbolos.mostrarTabla();
     
@@ -124,7 +101,6 @@ void semantica::controller(palabra p){
             if(cabecera && p == 30){ //Para el caso en que se encuentre un string y se trate de una cabecera guarda y setea todas la banderas en falso
                 //En caso de encontrarse con un string entonces debe guardarlo en la estructura de cabecera
                 encabezado en = encabezado::process(cache);
-                enc.push_back(en);
                 limpiarCola();
                 setAllFalse();
             }
@@ -161,6 +137,7 @@ void semantica::controller(palabra p){
             if(esIF){
                 condicional con = condicional::process(cache);
                 simbolos.buscar(con);
+                es.push_back(&con);
                 limpiarCola();
                 //Aqui vaciamos la cola;
             }else if(esFor){
@@ -168,15 +145,17 @@ void semantica::controller(palabra p){
                 //Aqui vaciamoOS la cola
             }else if(esFuncion){
                 funct foo = funct::process(cache);
-                funciones.push_back(foo);
-                cout << foo.getNArg() << endl;
                 simbolos.insertar(foo);
+                es.push_back(&foo);
                 limpiarCola();
                 //Aqui vaciamos la cola
             }else if(esWhile){
-                
-                //Aqui vaciamos la cola
-                
+                ciclo c = ciclo::proccess(cache);
+                simbolos.buscar(c);
+                es.push_back(&c);
+                //Aqui vaciamos la cola 
+            }else if(esFor){
+
             }
             setAllFalse();
             break;
@@ -185,10 +164,9 @@ void semantica::controller(palabra p){
             if(esDeclarado){
                 //Se debe guardar la declaracion
                 declaracion dec = declaracion::process(cache);
-                declaraciones.push_back(dec);
                 simbolos.insertar(dec);
+                es.push_back(&dec);
                 setAllFalse();
-                
                 esAsignado = true;
                 cache.push(lastvar);
                 cache.push(p);
@@ -203,7 +181,7 @@ void semantica::controller(palabra p){
         case 46: //Punto y coma
             if(esDeclarado){ //En caso de que se haya declarado entonces se guarda la declaracion
                 declaracion dec = declaracion::process(cache);
-                declaraciones.push_back(dec);
+                es.push_back(&dec);
                 simbolos.insertar(dec);
                 
                 setAllFalse();
@@ -211,13 +189,13 @@ void semantica::controller(palabra p){
             }else if(esFuncion){
                 
                 funct f = funct::process(cache);
-                funciones.push_back(f);
+                es.push_back(&f);
                 simbolos.insertar(f);
                 setAllFalse();
                 
             }else if(esAsignado){
                 asignacion as = asignacion::process(cache);
-                asig.push_back(as);
+                es.push_back(&as);
                 simbolos.buscar(as);
                 
                 limpiarCola();
@@ -230,7 +208,6 @@ void semantica::controller(palabra p){
         case 48: // >
             if(cabecera){
                 encabezado cab = encabezado::process(cache);
-                enc.push_back(cab);
                 setAllFalse();
             }
             break;

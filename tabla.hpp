@@ -69,7 +69,6 @@ public:
             */
         if (isInBars(as))
         { //Si la asignacion esta dentro de las variables, entonces verificamos la coherencia de la expresion
-            cout << "Construyendo" << endl;
             bool areDeclared = true;
             areDeclared = true && verificarCoherencia(as);
             if (areDeclared)
@@ -90,7 +89,21 @@ public:
     {
         if (verificarCoherencia(con))
         {
+
+            con.construir();
             
+
+        }else{
+            
+        }
+    }
+    void buscar(ciclo wh){
+        if(verificarCoherencia(wh)){
+            wh.construir();
+            wh.intermedio();
+
+        }else{
+            cout << "Error" << endl;
         }
     }
     bool isInBars(string varname)
@@ -209,21 +222,22 @@ public:
         }
         return false;
     }
-    bool verificarCoherencia(condicional con)
-    {
-        list<variable> vars = con.getVarsInCondition();
-        int type = 29;
+    bool verificarCoherencia(ciclo wh){
+        int type = 9;
         bool evaluation = true;
-        for (palabra p : con.getCondicion())
+        list<variable> vars = wh.getVars();
+        for (palabra p : wh.getCondicion())
         {                           //Verificamos que todos
             if (27 <= p && p <= 30) //Validamos el valor
+            {
                 evaluation = evaluation && validarValores(type, p);
+            } 
             else if (p == 37 || (42 <= p && p <= 44) || (48 <= p && p <= 51) || (56 <= p && p <= 61)) //Validamos el operador
+            {
                 evaluation = evaluation && validarOperadores(type, p);
+            }  
             else if (p == 31)
             {
-                variable v(p);
-                evaluation = evaluation && validarVariables(type, v);
                 if (!isInBars(p.getWord())) //Si la variable no esta en la variable de simbolos entonces
                 {
                     evaluation = evaluation && false;
@@ -238,7 +252,69 @@ public:
                         { //Validación por seguridad
                             if (isInBars(*it))
                             {                                                           //Si la variable esta en la tabla de simbolos entonces verificamos que sean del mismo tipo
-                                evaluation = evaluation && validarVariables(type, *it); //Esta funcion nos ayuda a verificar que la variable contra la que estemos asignando sea del mismo tipo
+                                palabra w =contenido[it->getVarname()].getVar();
+                                variable var(w);
+                                evaluation = evaluation && validarVariables(type, var); //Esta funcion nos ayuda a verificar que la variable contra la que estemos asignando sea del mismo tipo
+                                contenido[it->getVarname()].insertarReferencia(p.getRenglon());
+                            }
+                        }
+                        else
+                        {
+                            evaluation = evaluation && false;
+                        }
+                    }
+                    else
+                    {
+                        evaluation = evaluation && false;
+                    }
+                    //Insertamos la referencia a la variable a la que se llamo
+                }
+            }
+        }
+        return evaluation;
+
+        
+    }
+    bool verificarCoherencia(condicional con)
+    {
+        list<variable> &vars = con.getVarsInCondition();
+        for(variable &var : vars){
+            if(isInBars(var.getVarname())){
+                var.setType(contenido[var.getVarname()].getType());
+            }
+        }
+        int type = 9;
+        bool evaluation = true;
+        for (palabra p : con.getCondicion())
+        {                           //Verificamos que todos
+            if (27 <= p && p <= 30) //Validamos el valor
+            {
+                evaluation = evaluation && validarValores(type, p);
+            } 
+            else if (p == 37 || (42 <= p && p <= 44) || (48 <= p && p <= 51) || (56 <= p && p <= 61)) //Validamos el operador
+            {
+                evaluation = evaluation && validarOperadores(type, p);
+            }  
+            else if (p == 31)
+            {
+                if (!isInBars(p.getWord())) //Si la variable no esta en la variable de simbolos entonces
+                {
+                    evaluation = evaluation && false;
+                }
+                else
+                {
+                    list<variable>::iterator it;
+                    if (find(vars.begin(), vars.end(), p) != vars.end())
+                    {
+                        it = find(vars.begin(), vars.end(), p);
+                        if (it != vars.end())
+                        { //Validación por seguridad
+                            if (isInBars(*it))
+                            {                                                           //Si la variable esta en la tabla de simbolos entonces verificamos que sean del mismo tipo
+                                palabra w =contenido[it->getVarname()].getVar();
+                                variable var(w);
+                                evaluation = evaluation && validarVariables(type, var); //Esta funcion nos ayuda a verificar que la variable contra la que estemos asignando sea del mismo tipo
+                                contenido[it->getVarname()].insertarReferencia(p.getRenglon());
                             }
                         }
                         else
@@ -278,30 +354,7 @@ public:
                 }
                 else
                 {
-                    list<variable>::iterator it;
-                    if (find(vars.begin(), vars.end(), p) != vars.end())
-                    {
-
-                        it = find(vars.begin(), vars.end(), p);
-
-                        if (it != vars.end())
-                        { //Validación por seguridad
-                            if (isInBars(*it))
-                            { //Si la variable esta en la tabla de simbolos entonces verificamos que sean del mismo tipo
-
-                                evaluation = evaluation && validarVariables(type, *it); //Esta funcion nos ayuda a verificar que la variable contra la que estemos asignando sea del mismo tipo
-                            }
-                        }
-                        else
-                        {
-                            evaluation = evaluation && false;
-                        }
-                    }
-
-                    else
-                    {
-                        evaluation = evaluation && false;
-                    }
+                    contenido[v.getVarname()].insertarReferencia(p.getRenglon());
                     //Insertamos la referencia a la variable a la que se llamo
                 }
             }
@@ -317,13 +370,14 @@ public:
     }
     bool validarVariables(int type, variable var)
     {
+        int type2 = contenido[var.getVarname()].getType().getType();
         if (8 <= type && type <= 12)
         {
             switch (type)
             {
             //En caso de que la variable sea un string
             case 11:
-                if (var.getType() == 11)
+                if (type2 == 11)
                 { //El tipo de la variable debe ser un string si no entonces no puede ser una variable que se le pueda asignar
                     return true;
                 }
@@ -338,18 +392,18 @@ public:
             //En caso de que la variable sea numerica
             case 8:
             case 12:
-                if (var.getType() >= 9 || var.getType() <= 10)
+                if (type2 == 8 || type2 == 12)
                 { //En caso de ser un int no se le puede asignar un double
-                    return false;
+                    return true;
                 }
                 else
                 {
-                    return true;
+                    return false;
                 }
                 break;
             case 9:
             case 10:
-                if ((var.getType() >= 8 && var.getType() <= 10) || var.getType() == 12)
+                if ((type2 >= 8 && type2 <= 10) || (type2 == 12))
                 { //Solo se verifica que las variables sean numericas de tipo flotantes
                     return true;
                 }

@@ -25,7 +25,9 @@ class estructura {
         void setBloque(int bloque){
             this->bloque = bloque;
         }
-        
+        virtual void imprimir() {
+            cout << "Estructura" << endl;
+        }
     protected:
         int nivel, bloque;
         palabra palabra_clave;

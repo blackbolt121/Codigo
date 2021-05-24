@@ -23,6 +23,9 @@ class declaracion : public estructura{
         palabra getType(){ return type; }
         string getVarName(){ return varname;}
         static declaracion process(queue<palabra> &q);
+        void imprimir() {
+            cout << "Declaracion " << endl;
+        }
         friend class semantica;
     protected:
         palabra id;

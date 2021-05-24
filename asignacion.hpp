@@ -3,7 +3,7 @@
 #include <list>
 #include "rpn.hpp"
 using namespace std;
-class asignacion : estructura{
+class asignacion : public estructura{
     public:
         asignacion() : estructura(){ esArray = false; }
         void setVar(palabra p){ this->var = p; }
@@ -24,11 +24,7 @@ class asignacion : estructura{
                 list<palabra> aux = list<palabra>(operadores.begin(), operadores.end());
                 this->r.setOperadores(aux);
                 this->r.construir();
-                cout << "Tamaño expresion: " << r.getPolish().size() << endl;
-                for(palabra p : r.getPolish()){
-                    cout << p.getWord() << " ";
-                }
-                cout << endl;
+                r.notacionPolacaInversa();
             }
         }
         bool isArray() { return esArray; }
@@ -63,6 +59,27 @@ class asignacion : estructura{
                     case 61:
                         as.insertarOperador(p);
                         break;
+                    case 62:
+                        if(true){
+                            as.insertarOperador(as.getVar());
+                            palabra a("+"), b("1");
+                            a.setBloque(as.getVar().getBloque());
+                            b.setBloque(as.getVar().getBloque());
+                            as.insertarOperador(a);
+                            as.insertarOperador(b);
+                        }
+                        break;
+                    case 63:
+                        if(true){
+                            as.insertarOperador(as.getVar());
+                            palabra a("-"), b("1");
+                            a.setBloque(as.getVar().getBloque());
+                            b.setBloque(as.getVar().getBloque());
+                            as.insertarOperador(a);
+                            as.insertarOperador(b);
+                        }
+                        
+                        break;
                     case 31: //En caso de encontrar una variable
                         
                         if(!asignado)
@@ -86,10 +103,6 @@ class asignacion : estructura{
                         asignado = true;
                         break;
                     case 46:
-                        for(palabra p : as.getOperadores()){
-                            cout << p.getWord() << " ";
-                        }
-                        cout << endl;
                         return as;
                     default:
                         break;
@@ -98,7 +111,10 @@ class asignacion : estructura{
                 
             }
             return as;
-        } 
+        }
+        void imprimir(){
+            cout << "Asignacion " << endl;
+        }
     private:
         variable var;
         string varname;
